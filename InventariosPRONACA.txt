@@ -1,0 +1,145 @@
+CREATE TABLE Proveedor (
+    ID_Proveedor SERIAL PRIMARY KEY,
+    Nombre_Proveedor VARCHAR(100) NOT NULL,
+    Telefono VARCHAR(10) NOT NULL CHECK (LENGTH(Telefono) = 10),
+    Correo VARCHAR(100) NOT NULL CHECK (Correo ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+    Direccion VARCHAR(200) NOT NULL
+);
+
+CREATE TABLE Producto (
+    ID_Producto SERIAL PRIMARY KEY,
+    Nombre_Producto VARCHAR(100) NOT NULL,
+    Categoria VARCHAR(50) NOT NULL CHECK (Categoria IN ('Aves', 'Carnes', 'Embutidos', 'Pescados', 'Vegetales')),
+    Precio_Unitario DECIMAL(10, 2) NOT NULL CHECK (Precio_Unitario > 0),
+    Stock INT NOT NULL DEFAULT 0 CHECK (Stock >= 0),
+    Fecha_Creacion DATE DEFAULT '2024-01-01',
+    ID_Proveedor INT,
+    FOREIGN KEY (ID_Proveedor) REFERENCES Proveedor(ID_Proveedor)
+);
+
+CREATE TABLE Cliente (
+    ID_Cliente SERIAL PRIMARY KEY,
+    Nombre_Cliente VARCHAR(100) NOT NULL,
+    Telefono VARCHAR(10) NOT NULL CHECK (LENGTH(Telefono) = 10),
+    Correo VARCHAR(100) NOT NULL CHECK (Correo ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+    Direccion VARCHAR(200) NOT NULL
+);
+
+CREATE TABLE Almacen (
+    ID_Almacen SERIAL PRIMARY KEY,
+    Nombre_Almacen VARCHAR(100) NOT NULL,
+    Ubicacion VARCHAR(200) NOT NULL,
+    Capacidad INT NOT NULL CHECK (Capacidad > 0),
+    Encargado VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE Movimiento_Inventario (
+    ID_Movimiento SERIAL PRIMARY KEY,
+    Tipo_Movimiento VARCHAR(10) NOT NULL CHECK (Tipo_Movimiento IN ('Entrada', 'Salida')),
+    Fecha_Movimiento DATE NOT NULL,
+    Cantidad INT NOT NULL CHECK (Cantidad > 0),
+    ID_Producto INT,
+    ID_Cliente INT,
+    ID_Almacen INT,
+    FOREIGN KEY (ID_Producto) REFERENCES Producto(ID_Producto),
+    FOREIGN KEY (ID_Cliente) REFERENCES Cliente(ID_Cliente),
+    FOREIGN KEY (ID_Almacen) REFERENCES Almacen(ID_Almacen)
+);
+
+CREATE TABLE Historial_Precio (
+    ID_Historial SERIAL PRIMARY KEY,
+    Precio_Anterior DECIMAL(10, 2) NOT NULL CHECK (Precio_Anterior > 0),
+    Precio_Nuevo DECIMAL(10, 2) NOT NULL CHECK (Precio_Nuevo > 0 AND Precio_Nuevo <> Precio_Anterior),
+    Fecha_Cambio DATE NOT NULL,
+    ID_Producto INT,
+    FOREIGN KEY (ID_Producto) REFERENCES Producto(ID_Producto)
+);
+
+
+// Importante primero antes de empezar
+TRUNCATE TABLE Proveedor RESTART IDENTITY CASCADE;
+TRUNCATE TABLE Producto RESTART IDENTITY CASCADE;
+TRUNCATE TABLE Cliente RESTART IDENTITY CASCADE;
+TRUNCATE TABLE Almacen RESTART IDENTITY CASCADE;
+TRUNCATE TABLE Movimiento_inventario RESTART IDENTITY CASCADE;
+TRUNCATE TABLE Historial_Precio RESTART IDENTITY CASCADE;
+
+
+Insercciones	
+-- Inserciones en la tabla Proveedor
+INSERT INTO Proveedor (Nombre_Proveedor, Telefono, Correo, Direccion) VALUES
+('Mr. Pollo', '0991234567', 'contacto@mrpollo.com.ec', 'Av. Amazonas y Naciones Unidas, Quito'),
+('Pronaca', '0987654321', 'ventas@pronaca.com.ec', 'Km 24 Vía a Daule, Guayaquil'),
+('La Española', '0991122334', 'info@laespanola.com.ec', 'Av. de los Shyris, Quito'),
+('Toni Dairy', '0965567788', 'contacto@toni.com.ec', 'Av. Los Chillos, Quito'),
+('Fadesa', '0987788990', 'ventas@fadesa.com.ec', 'Av. 9 de Octubre, Guayaquil'),
+('Supán', '0996655443', 'ventas@supan.com.ec', 'Av. Occidental, Quito'),
+('Esmeraldas Fish', '0968877661', 'info@esmeraldasfish.com.ec', 'Malecón, Esmeraldas'),
+('Kiwy', '0994433221', 'info@kiwy.com.ec', 'Calle Larga, Cuenca'),
+('Indulac', '0956677889', 'info@indulac.com.ec', 'Av. 10 de Agosto, Quito'),
+('La Favorita', '0978877665', 'servicio@lafavorita.com.ec', 'Av. 6 de Diciembre, Quito');
+
+-- Inserciones en la tabla Producto
+INSERT INTO Producto (Nombre_Producto, Categoria, Precio_Unitario, Stock, ID_Proveedor) VALUES
+('Pollo Fresco', 'Carnes', 3.75, 500, 1),
+('Carne de Res', 'Carnes', 5.25, 300, 2),
+('Chorizo Ibérico', 'Embutidos', 6.50, 200, 3),
+('Queso Mozzarella', 'Vegetales', 4.20, 150, 4),
+('Pan Integral', 'Vegetales', 1.50, 800, 6),
+('Pescado Fresco', 'Pescados', 9.80, 250, 7),
+('Yogur Natural', 'Vegetales', 1.20, 600, 4),
+('Aceite de Oliva', 'Vegetales', 7.90, 100, 10),
+('Pollo Broaster', 'Carnes', 4.00, 400, 1),
+('Leche Entera', 'Vegetales', 1.10, 500, 9);
+
+-- Inserciones en la tabla Cliente
+INSERT INTO Cliente (Nombre_Cliente, Telefono, Correo, Direccion) VALUES
+('Supermaxi', '0990011223', 'info@supermaxi.com.ec', 'Av. Eloy Alfaro, Quito'),
+('Tía', '0985566778', 'contacto@tia.com.ec', 'Av. 25 de Julio, Guayaquil'),
+('Comisariato', '0956677889', 'info@comisariato.com.ec', 'Vía a Samborondón, Guayaquil'),
+('Megamaxi', '0967788990', 'ventas@megamaxi.com.ec', 'Calle Diego de Almagro, Quito'),
+('Coral Hipermercados', '0976655443', 'ventas@coral.com.ec', 'Av. Remigio Crespo, Cuenca'),
+('Santa María', '0984433221', 'info@santamaria.com.ec', 'Av. Gaspar de Villarroel, Quito'),
+('Gran Akí', '0945566778', 'contacto@granaki.com.ec', 'Av. 9 de Octubre, Guayaquil'),
+('Mi Comisariato', '0998877665', 'servicio@micomisariato.com.ec', 'Malecón, Guayaquil'),
+('Farinango Market', '0968877661', 'info@farinango.com.ec', 'Calle Bolívar, Ibarra'),
+('Aki', '0992345678', 'ventas@aki.com.ec', 'Calle Amazonas, Quito');
+
+-- Inserciones en la tabla Almacen
+INSERT INTO Almacen (Nombre_Almacen, Ubicacion, Capacidad, Encargado) VALUES
+('Almacén Quito Central', 'Quito', 1500, 'Juan Pérez'),
+('Almacén Guayaquil Norte', 'Guayaquil', 1800, 'Carlos López'),
+('Almacén Sur Cuenca', 'Cuenca', 1200, 'Ana Morales'),
+('Almacén Esmeraldas', 'Esmeraldas', 900, 'Luisa Torres'),
+('Almacén Ambato', 'Ambato', 1000, 'Miguel Sánchez'),
+('Almacén Portoviejo', 'Portoviejo', 850, 'José Castillo'),
+('Almacén Loja', 'Loja', 950, 'María Jiménez'),
+('Almacén Santo Domingo', 'Santo Domingo', 1100, 'Pedro Zambrano'),
+('Almacén Ibarra', 'Ibarra', 700, 'Sofía Gómez'),
+('Almacén Machala', 'Machala', 950, 'Patricia Mena');
+
+-- Inserciones en la tabla Movimiento_Inventario
+INSERT INTO Movimiento_Inventario (Tipo_Movimiento, Fecha_Movimiento, Cantidad, ID_Producto, ID_Cliente, ID_Almacen) VALUES
+('Entrada', '2024-01-01', 100, 1, 1, 1),
+('Salida', '2024-01-02', 50, 2, 2, 2),
+('Entrada', '2024-01-03', 75, 3, 3, 3),
+('Salida', '2024-01-04', 40, 4, 4, 4),
+('Entrada', '2024-01-05', 60, 5, 5, 5),
+('Salida', '2024-01-06', 30, 6, 6, 6),
+('Entrada', '2024-01-07', 120, 7, 7, 7),
+('Salida', '2024-01-08', 80, 8, 8, 8),
+('Entrada', '2024-01-09', 150, 9, 9, 9),
+('Salida', '2024-01-10', 90, 10, 10, 10);
+
+-- Inserciones en la tabla Historial_Precio
+INSERT INTO Historial_Precio (Precio_Anterior, Precio_Nuevo, Fecha_Cambio, ID_Producto) VALUES
+(3.75, 4.00, '2024-02-01', 1),
+(5.25, 5.50, '2024-02-02', 2),
+(6.50, 6.75, '2024-02-03', 3),
+(4.20, 4.50, '2024-02-04', 4),
+(1.50, 1.60, '2024-02-05', 5),
+(9.80, 10.00, '2024-02-06', 6),
+(1.20, 1.30, '2024-02-07', 7),
+(7.90, 8.20, '2024-02-08', 8),
+(4.00, 4.25, '2024-02-09', 9),
+(1.10, 1.15, '2024-02-10', 10);
