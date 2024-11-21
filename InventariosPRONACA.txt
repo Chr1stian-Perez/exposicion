@@ -1,6 +1,6 @@
 CREATE TABLE Proveedor (
     ID_Proveedor SERIAL PRIMARY KEY,
-    Nombre_Proveedor VARCHAR(100) NOT NULL,
+    nom_prov VARCHAR(50) NOT NULL,
     Telefono VARCHAR(10) NOT NULL CHECK (LENGTH(Telefono) = 10),
     Correo VARCHAR(100) NOT NULL CHECK (Correo ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     Direccion VARCHAR(200) NOT NULL
